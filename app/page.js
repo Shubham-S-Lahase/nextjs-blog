@@ -2,31 +2,39 @@
 
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function HomePage() {
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
   const fetchPosts = async () => {
-    const res = await fetch('/api/posts');
+    const res = await fetch(`/api/posts?page=${page}&limit=${limit}`);
     if (!res.ok) throw new Error('Failed to fetch posts');
     return res.json();
   };
 
   // Updated useQuery to use the object syntax required by TanStack Query v5
-  const { data: posts, isLoading, isError } = useQuery({
-    queryKey: ['posts'],
+  const { data = { posts: [], totalPages: 1 }, isLoading, isError } = useQuery({
+    queryKey: ['posts', page],
     queryFn: fetchPosts,
+    keepPreviousData: true,
   });
 
   if (isLoading) return <div className="text-center">Loading...</div>;
   if (isError) return <div className="text-center text-red-500">Error loading posts.</div>;
 
+  const { posts: postList, totalPages } = data;
+  console.log(totalPages);
+
   return (
     <div className="max-w-4xl mx-auto py-6">
       <h1 className="text-3xl font-bold text-center mb-6">Blog Posts</h1>
-      {posts.length === 0 ? (
+      {postList.length === 0 ? (
         <p className="text-center text-gray-500">No posts available.</p>
       ) : (
         <div className="space-y-6">
-          {posts.map((post) => (
+          {postList.map((post) => (
             <div key={post._id} className="p-4 border rounded-md shadow-md hover:shadow-lg transition">
               <h2 className="text-xl font-semibold">
                 <Link href={`/post/${post._id}`} className="text-blue-500 hover:underline">
@@ -45,6 +53,25 @@ export default function HomePage() {
           ))}
         </div>
       )}
+      <div className="flex justify-center items-center gap-4 mt-6">
+        <button
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page === 1}
+        >
+          Previous
+        </button>
+        <span className="text-gray-600">
+          Page {page} of {totalPages}
+        </span>
+        <button
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={page === totalPages}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }

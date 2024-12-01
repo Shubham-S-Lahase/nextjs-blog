@@ -1,12 +1,52 @@
 import dbConnect from '@/lib/dbConnect';
 import Post from '@/models/Post';
+import { verifyToken } from '@/lib/jwtHelper';
 
-export async function GET() {
+export async function GET(req) {
   try {
     await dbConnect();
-    const posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
+    const url = new URL(req.url);
+    const page = parseInt(url.searchParams.get('page')) || 1;
+    const limit = parseInt(url.searchParams.get('limit')) || 10;
+    const skip = (page - 1) * limit;
 
-    return new Response(JSON.stringify(posts), { status: 200 });
+    const posts = await Post.find()
+      .populate('author', 'username')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Post.countDocuments();
+    // console.log(total);
+    const totalPages = Math.ceil(total / limit);
+    // console.log(totalPages);
+
+    return new Response(
+      JSON.stringify({ posts, page, totalPages }),
+      { status: 200 }
+    );
+  } catch (error) {
+    return new Response(JSON.stringify({ message: error.message }), { status: 500 });
+  }
+}
+
+
+export async function POST(req) {
+  try {
+    await dbConnect();
+    const { title, content } = await req.json();
+    const token = req.headers.authorization?.split(' ')[1];
+    const user = verifyToken(token);
+
+    if (!user) return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401 });
+
+    const newPost = await Post.create({
+      title,
+      content,
+      author: user.id, // Set the post author
+    });
+
+    return new Response(JSON.stringify(newPost), { status: 201 });
   } catch (error) {
     return new Response(JSON.stringify({ message: error.message }), { status: 500 });
   }
