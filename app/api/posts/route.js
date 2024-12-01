@@ -35,19 +35,34 @@ export async function POST(req) {
   try {
     await dbConnect();
     const { title, content } = await req.json();
-    const token = req.headers.authorization?.split(' ')[1];
+
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ message: 'Authorization header missing or malformed' }),
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.split(' ')[1];
     const user = verifyToken(token);
 
-    if (!user) return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401 });
+    if (!user) {
+      return new Response(JSON.stringify({ message: 'Unauthorized' }), {
+        status: 401,
+      });
+    }
 
     const newPost = await Post.create({
       title,
       content,
-      author: user.id, // Set the post author
+      author: user.id, // Assuming `id` is part of the decoded token
     });
 
     return new Response(JSON.stringify(newPost), { status: 201 });
   } catch (error) {
-    return new Response(JSON.stringify({ message: error.message }), { status: 500 });
+    return new Response(JSON.stringify({ message: error.message }), {
+      status: 500,
+    });
   }
 }

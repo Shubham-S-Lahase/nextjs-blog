@@ -32,6 +32,12 @@ function Header({ auth }) {
                 />
                 <span>{user.username}</span>
               </div>
+              <Link
+                href="/newpost"
+                className="ml-4 bg-blue-500 px-3 py-1 rounded hover:bg-blue-700"
+              >
+                Create Post
+              </Link>
               <button
                 onClick={logout}
                 className="ml-4 bg-red-500 px-3 py-1 rounded hover:bg-red-700"
