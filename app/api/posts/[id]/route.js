@@ -27,7 +27,7 @@ export async function GET(req, { params }) {
     await dbConnect();
 
     // Fetch post details
-    const post = await Post.findById(id).populate('author', 'username').populate('comments');
+    const post = await Post.findById(id).populate('author', 'username').populate({ path: 'comments', select: 'content author' });
 
     if (!post) {
       return new Response(JSON.stringify({ message: 'Post not found' }), { status: 404 });
