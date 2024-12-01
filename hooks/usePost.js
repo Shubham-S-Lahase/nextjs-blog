@@ -1,4 +1,3 @@
-// hooks/usePost.js
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -7,6 +6,7 @@ export const usePost = (id, auth) => {
   const router = useRouter();
   const [post, setPost] = useState(null);
   const [isAuthor, setIsAuthor] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [editData, setEditData] = useState({ title: "", content: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,8 +37,13 @@ export const usePost = (id, auth) => {
   useEffect(() => {
     if (fetchedPost?.post) {
       setPost(fetchedPost.post);
-      if (auth.user && auth.user._id === fetchedPost.post.author._id) {
-        setIsAuthor(true);
+      if (auth.user) {
+        if (auth.user._id === fetchedPost.post.author._id) {
+          setIsAuthor(true);
+        }
+        if (auth.user.role === 'admin') {
+          setIsAdmin(true);
+        }
       }
     }
   }, [fetchedPost, auth.user]);
@@ -111,6 +116,7 @@ export const usePost = (id, auth) => {
     isLoading,
     isError,
     isAuthor,
+    isAdmin,
     isModalOpen,
     editData,
     setEditData,

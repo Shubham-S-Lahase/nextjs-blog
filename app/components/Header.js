@@ -1,62 +1,87 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { withAuth } from '@/lib/withAuth';
-import Image from 'next/image';
+import Link from "next/link";
+import { withAuth } from "@/lib/withAuth";
+import Image from "next/image";
+import { useState } from "react";
+import Modal from "./Modal";
+import Login from "./Login";
+import Register from "./Register";
 
 function Header({ auth }) {
+  const { user, logout, loading } = auth;
+  const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+  const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
 
-  const {user, logout, loading } = auth;
+  const handleLoginSuccess = () => {
+    setLoginModalOpen(false);
+  };
+
+  const handleRegisterSuccess = () => {
+    setRegisterModalOpen(false);
+  };
 
   if (loading) {
     return <p>Loading...</p>;
   }
 
-  // console.log(user);
-
   return (
-    <header className="bg-gray-800 text-white p-4">
-      <div className="max-w-4xl mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold">My Blog</h1>
-        <nav className="flex items-center">
+    <header className="bg-gray-800 text-white p-4 shadow-md">
+      <div className="max-w-6xl mx-auto flex justify-between items-center">
+        <h1 className="text-2xl font-bold">My Blog</h1>
+        <nav className="flex items-center space-x-4">
           {user ? (
             <>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
                 <Image
-                  src={user.profilePicture || '/default-avatar.png'}
+                  src={user.profilePicture || "/default.png"}
                   alt="Profile"
-                  width={32}
-                  height={32}
-                  layout="responsive"
-                  className="w-8 h-8 rounded-full border border-gray-300"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full border border-gray-300 object-cover"
                 />
-                <span>{user.username}</span>
+                <span className="text-lg">{user.username}</span>
               </div>
               <Link
                 href="/newpost"
-                className="ml-4 bg-blue-500 px-3 py-1 rounded hover:bg-blue-700"
+                className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200"
               >
                 Create Post
               </Link>
               <button
                 onClick={logout}
-                className="ml-4 bg-red-500 px-3 py-1 rounded hover:bg-red-700"
+                className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded transition duration-200"
               >
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link href="/register" className="mr-4 hover:underline">
+              <button
+                onClick={() => setRegisterModalOpen(true)}
+                className="hover:underline text-lg"
+              >
                 Register
-              </Link>
-              <Link href="/login" className="hover:underline">
+              </button>
+              <button
+                onClick={() => setLoginModalOpen(true)}
+                className="hover:underline text-lg"
+              >
                 Login
-              </Link>
+              </button>
             </>
           )}
         </nav>
       </div>
+      <Modal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)}>
+        <Login auth={auth} onSuccess={handleLoginSuccess} />
+      </Modal>
+      <Modal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setRegisterModalOpen(false)}
+      >
+        <Register onSuccess={handleRegisterSuccess} />
+      </Modal>
     </header>
   );
 }
