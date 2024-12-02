@@ -10,7 +10,7 @@ import Loader from "./components/Loader/Loader";
 function HomePage({ auth }) {
   const { theme } = useTheme(); 
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const limit = 12;
   const { user } = auth;
 
   const fetchPosts = async () => {
