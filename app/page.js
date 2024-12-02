@@ -1,31 +1,47 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import Link from 'next/link';
-import { useState } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { useState } from "react";
+import { withAuth } from "@/lib/withAuth";
 
-export default function HomePage() {
+function HomePage({ auth }) {
   const [page, setPage] = useState(1);
   const limit = 10;
+  const { user } = auth;
 
   const fetchPosts = async () => {
     const res = await fetch(`/api/posts?page=${page}&limit=${limit}`);
-    if (!res.ok) throw new Error('Failed to fetch posts');
+    if (!res.ok) throw new Error("Failed to fetch posts");
     return res.json();
   };
 
   // Updated useQuery to use the object syntax required by TanStack Query v5
-  const { data = { posts: [], totalPages: 1 }, isLoading, isError } = useQuery({
-    queryKey: ['posts', page],
+  const {
+    data = { posts: [], totalPages: 1 },
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["posts", page],
     queryFn: fetchPosts,
     keepPreviousData: true,
   });
 
   if (isLoading) return <div className="text-center">Loading...</div>;
-  if (isError) return <div className="text-center text-red-500">Error loading posts.</div>;
+  if (isError)
+    return <div className="text-center text-red-500">Error loading posts.</div>;
 
   const { posts: postList, totalPages } = data;
-  console.log(totalPages);
+  // console.log(totalPages);
+
+  const handleReadMoreClick = (postId) => {
+    if(user) {
+      window.location.href = `/post/${postId}`;
+    } else {
+      alert('You need to be logged in to read more about this post.');
+    }
+  }
+
 
   return (
     <div className="max-w-4xl mx-auto py-6">
@@ -35,20 +51,31 @@ export default function HomePage() {
       ) : (
         <div className="space-y-6">
           {postList.map((post) => (
-            <div key={post._id} className="p-4 border rounded-md shadow-md hover:shadow-lg transition">
+            <div
+              key={post._id}
+              className="p-4 border rounded-md shadow-md hover:shadow-lg transition"
+            >
               <h2 className="text-xl font-semibold">
-                <Link href={`/post/${post._id}`} className="text-blue-500 hover:underline">
+              <span
+                  className="text-blue-500 hover:underline cursor-pointer"
+                  onClick={() => handleReadMoreClick(post._id)}
+                >
                   {post.title}
-                </Link>
+                </span>
               </h2>
               <p className="text-gray-600 text-sm">
-                By {post.author?.username || 'Unknown'} |{' '}
+                By {post.author?.username || "Unknown"} |{" "}
                 {new Date(post.createdAt).toLocaleDateString()}
               </p>
-              <p className="mt-2 text-gray-800">{post.content.slice(0, 100)}...</p>
-              <Link href={`/post/${post._id}`} className="text-blue-500 mt-2 inline-block hover:underline">
+              <p className="mt-2 text-gray-800">
+                {post.content.slice(0, 100)}...
+              </p>
+              <span
+                className="text-blue-500 mt-2 inline-block hover:underline cursor-pointer"
+                onClick={() => handleReadMoreClick(post._id)} // Use the new handler
+              >
                 Read More
-              </Link>
+              </span>
             </div>
           ))}
         </div>
@@ -75,3 +102,6 @@ export default function HomePage() {
     </div>
   );
 }
+
+
+export default withAuth(HomePage);

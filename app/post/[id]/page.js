@@ -36,7 +36,7 @@ function PostPage({ auth }) {
         By {post.author.username} | {new Date(post.createdAt).toLocaleDateString()}
       </p>
       <p className="text-gray-800 leading-relaxed mb-6">{post.content}</p>
-      {isAuthor || isAdmin && (
+      {(isAuthor || isAdmin) && (
         <div className="flex gap-4">
           <button
             onClick={handleEdit}
