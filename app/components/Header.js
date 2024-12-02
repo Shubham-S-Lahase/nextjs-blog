@@ -106,7 +106,7 @@ function Header({ auth }) {
 
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
-        <nav className={`absolute top-16 left-0 w-full bg-${theme === "dark" ? "gray-800" : "white"} z-[1000] flex flex-col items-center space-y-4 mt-4 md:hidden`}>
+        <nav className={`absolute left-0 w-full bg-${theme === "dark" ? "gray-800" : "white"} z-[1000] flex flex-col items-center space-y-4 mt-4 p-4 md:hidden`}>
           {user ? (
             <>
               <div className="flex flex-col items-center">
