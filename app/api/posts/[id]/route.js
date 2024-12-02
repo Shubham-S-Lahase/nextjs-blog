@@ -26,8 +26,16 @@ export async function GET(req, { params }) {
 
     await dbConnect();
 
-    // Fetch post details
-    const post = await Post.findById(id).populate('author', 'username').populate({ path: 'comments', select: 'content author' });
+    const post = await Post.findById(id)
+    .populate('author', 'username') 
+    .populate({
+      path: 'comments',
+      select: 'content author createdAt',
+      populate: {
+        path: 'author', 
+        select: 'username', 
+      },
+    });
 
     if (!post) {
       return new Response(JSON.stringify({ message: 'Post not found' }), { status: 404 });
@@ -108,6 +116,8 @@ export async function DELETE(req, { params }) {
       return new Response(JSON.stringify({ message: 'Forbidden: Only the author or an admin can delete this post' }), { status: 403 });
     }
 
+    await Comment.deleteMany({ postId: id });
+    
     await Post.findByIdAndDelete(id);
 
     return new Response(JSON.stringify({ message: 'Post deleted successfully' }), { status: 200 });

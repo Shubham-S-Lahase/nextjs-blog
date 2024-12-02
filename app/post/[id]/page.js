@@ -2,11 +2,15 @@
 
 import { useParams } from "next/navigation";
 import { withAuth } from "@/lib/withAuth";
-import { usePost } from "@/hooks/usePost"; // Adjust the import path as necessary
+import { usePost } from "@/hooks/usePost";
 import Modal from "@/app/components/Modal";
+import { useState, useEffect } from "react";
+import CommentSection from "@/app/components/CommentSection";
 
 function PostPage({ auth }) {
   const { id } = useParams();
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
   const {
     post,
     isLoading,
@@ -21,6 +25,14 @@ function PostPage({ auth }) {
     handleSave,
     handleDelete,
   } = usePost(id, auth);
+
+  // console.log(post);
+
+  useEffect(() => {
+    if (post) {
+      setComments(post.comments);
+    }
+  }, [post]);
 
   // Check if the post is still loading or an error occurred
   if (isLoading) return <div className="text-center">Loading...</div>;
@@ -88,19 +100,14 @@ function PostPage({ auth }) {
           </button>
         </form>
       </Modal>
-      <h2 className="text-2xl font-bold mt-8 mb-4">Comments</h2>
-      <ul>
-        {post.comments && post.comments.length > 0 ? (
-          post.comments.map((comment) => (
-            <li key={comment._id} className="mb-4">
-              <p className="text-sm font-semibold">{comment.author.username}</p>
-              <p className="text-gray-800">{comment.content}</p>
-            </li>
-          ))
-        ) : (
-          <p>No comments yet</p>
-        )}
-      </ul>
+      <CommentSection
+        comments={comments}
+        setComments={setComments}
+        postId={id}
+        auth={auth}
+        newComment={newComment}
+        setNewComment={setNewComment}
+      />
     </div>
   );
 }
