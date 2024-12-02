@@ -19,7 +19,6 @@ export async function POST(req) {
     }
 
     // Generate JWT
-    
     // console.log('Signing token with payload:', { id: user._id.toString(), role: user.role });
     const token = signToken({ id: user._id.toString(), role: user.role });
 

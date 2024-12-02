@@ -56,7 +56,7 @@ export async function POST(req) {
     const newPost = await Post.create({
       title,
       content,
-      author: user.id, // Assuming `id` is part of the decoded token
+      author: user.id,
     });
 
     return new Response(JSON.stringify(newPost), { status: 201 });

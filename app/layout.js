@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "./components/Header";
 import ReactQueryProvider from "./components/ReactQueryProvider";
 import { AuthProvider } from "@/lib/AuthContext";
+import { ThemeProvider } from "@/lib/ThemeContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,12 +27,14 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ReactQueryProvider>
-          <AuthProvider>
-            <Header />
-            <main>{children}</main>
-          </AuthProvider>
-        </ReactQueryProvider>
+        <ThemeProvider>
+          <ReactQueryProvider>
+            <AuthProvider>
+              <Header />
+              <main className="pt-16">{children}</main>
+            </AuthProvider>
+          </ReactQueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

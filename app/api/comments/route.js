@@ -3,7 +3,6 @@ import Comment from "@/models/Comment";
 import Post from "@/models/Post";
 import { verifyToken } from "@/lib/jwtHelper";
 
-// Add Comment
 export async function POST(req) {
   try {
     const { content, postId } = await req.json();

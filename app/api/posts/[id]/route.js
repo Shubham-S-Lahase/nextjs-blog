@@ -5,7 +5,6 @@ import { verifyToken } from '@/lib/jwtHelper';
 
 export async function GET(req, { params }) {
   try {
-    // Await the params object to access its properties
     const { id } = await params; 
 
     if (!id) {

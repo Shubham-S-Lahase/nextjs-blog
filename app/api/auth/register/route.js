@@ -27,7 +27,7 @@ export async function POST(req) {
       username,
       email,
       password: hashedPassword,
-      profilePicture: fileUrl, // Save the file URL here
+      profilePicture: fileUrl,
       role: role || "user",
     });
 
